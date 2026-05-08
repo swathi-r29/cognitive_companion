@@ -11,10 +11,38 @@ const Chat = ({ user }) => {
   const scrollRef = useRef(null);
   const ws = useRef(null);
 
+  const [isConnected, setIsConnected] = useState(false);
+
   useEffect(() => {
-    // Initialize WebSocket
     const userId = user?.id || "guest";
+
+    // 1. Fetch History from Backend
+    const fetchHistory = async () => {
+      try {
+        const response = await fetch(`http://localhost:8000/api/history/${userId}`);
+        const data = await response.json();
+        if (data && data.length > 0) {
+          // Map backend fields to frontend fields if necessary
+          const historyMessages = data.map(m => ({
+            id: m._id,
+            role: m.role,
+            content: m.content,
+            metadata: { emotion: m.emotion },
+            timestamp: new Date(m.timestamp)
+          }));
+          setMessages(historyMessages);
+        }
+      } catch (error) {
+        console.error("Failed to fetch history:", error);
+      }
+    };
+    fetchHistory();
+
+    // 2. Initialize WebSocket
     ws.current = new WebSocket(`ws://localhost:8000/ws/chat/${userId}`);
+
+    ws.current.onopen = () => setIsConnected(true);
+    ws.current.onclose = () => setIsConnected(false);
 
     ws.current.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -33,14 +61,14 @@ const Chat = ({ user }) => {
     return () => {
       if (ws.current) ws.current.close();
     };
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   const handleSend = () => {
-    if (!input.trim()) return;
+    if (!input.trim() || !isConnected) return;
 
     const userMessage = {
       id: Date.now(),
@@ -137,15 +165,15 @@ const Chat = ({ user }) => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-            placeholder="Type your thoughts here..."
-            className="w-full bg-slate-800/50 border border-slate-700 rounded-2xl px-6 py-4 pr-16 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all text-slate-200 placeholder:text-slate-500"
+            placeholder={isConnected ? "Type your thoughts here..." : "Connecting to Aura..."}
+            className={`w-full bg-slate-800/50 border border-slate-700 rounded-2xl px-6 py-4 pr-16 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all text-slate-200 placeholder:text-slate-500 ${!isConnected ? 'opacity-50 cursor-not-allowed' : ''}`}
           />
           <button
             onClick={handleSend}
-            disabled={!input.trim()}
+            disabled={!input.trim() || !isConnected}
             className="absolute right-3 top-3 p-2 rounded-xl bg-primary-600 hover:bg-primary-500 text-white disabled:opacity-50 disabled:hover:bg-primary-600 transition-all shadow-lg shadow-primary-500/20"
           >
-            <Send className="w-5 h-5" />
+            {isConnected ? <Send className="w-5 h-5" /> : <Loader2 className="w-5 h-5 animate-spin" />}
           </button>
         </div>
         <p className="mt-3 text-center text-[11px] text-slate-600">

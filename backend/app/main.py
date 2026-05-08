@@ -99,6 +99,23 @@ async def startup_event():
 async def root():
     return {"message": "Welcome to Cognitive Mood API", "status": "running"}
 
+@app.get("/api/history/{user_id}")
+async def get_history(user_id: str):
+    """Fetch recent chat history for a specific user."""
+    try:
+        coll = get_messages_collection()
+        cursor = coll.find({"user_id": user_id}).sort("timestamp", 1).limit(50)
+        messages = await cursor.to_list(length=50)
+        # Convert ObjectId and datetime for JSON serialization
+        for msg in messages:
+            msg["_id"] = str(msg["_id"])
+            if "timestamp" in msg and msg["timestamp"]:
+                msg["timestamp"] = msg["timestamp"].isoformat()
+        return messages
+    except Exception as e:
+        logger.error(f"Error fetching history: {e}")
+        return []
+
 @app.websocket("/ws/chat/{user_id}")
 async def websocket_endpoint(websocket: WebSocket, user_id: str):
     await manager.connect(user_id, websocket)
