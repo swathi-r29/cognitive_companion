@@ -90,7 +90,8 @@ async def startup_event():
     async def load_in_background():
         await asyncio.sleep(2)  # Let server boot first
         try:
-            nlp_pipeline.load_models()
+            # Load models in a separate thread to avoid blocking the event loop
+            await asyncio.to_thread(nlp_pipeline.load_models)
         except Exception as e:
             logger.warning(f"NLP model load failed, rule-based fallback will be used: {e}")
     asyncio.create_task(load_in_background())
@@ -140,7 +141,7 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
             analysis = None
             if nlp_pipeline.emotion_classifier:
                 try:
-                    analysis = nlp_pipeline.analyze_text(text)
+                    analysis = await nlp_pipeline.analyze_text(text)
                 except Exception as e:
                     logger.warning(f"NLP pipeline error: {e}")
 

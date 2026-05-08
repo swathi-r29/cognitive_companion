@@ -6,6 +6,25 @@ import {
 import { TrendingUp, Zap, Heart, Brain, AlertTriangle, Loader2 } from 'lucide-react';
 import axios from 'axios';
 
+const StatCard = ({ title, value, icon: Icon, color, trend }) => (
+  <div className="glass-card p-6 flex flex-col gap-4">
+    <div className="flex justify-between items-start">
+      <div className={`p-3 rounded-xl ${color}`}>
+        <Icon className="w-6 h-6 text-white" />
+      </div>
+      {trend && (
+        <span className={`text-xs font-bold ${trend > 0 ? 'text-rose-400' : 'text-emerald-400'}`}>
+          {trend > 0 ? '+' : ''}{trend}%
+        </span>
+      )}
+    </div>
+    <div>
+      <h3 className="text-slate-500 text-sm font-medium">{title}</h3>
+      <p className="text-2xl font-bold text-slate-100">{value}</p>
+    </div>
+  </div>
+);
+
 const Dashboard = ({ user }) => {
   const [loading, setLoading] = React.useState(true);
   const [moodTrend, setMoodTrend] = React.useState([]);
@@ -44,26 +63,7 @@ const Dashboard = ({ user }) => {
     };
 
     fetchData();
-  }, []);
-
-  const StatCard = ({ title, value, icon: Icon, color, trend }) => (
-    <div className="glass-card p-6 flex flex-col gap-4">
-      <div className="flex justify-between items-start">
-        <div className={`p-3 rounded-xl ${color}`}>
-          <Icon className="w-6 h-6 text-white" />
-        </div>
-        {trend && (
-          <span className={`text-xs font-bold ${trend > 0 ? 'text-rose-400' : 'text-emerald-400'}`}>
-            {trend > 0 ? '+' : ''}{trend}%
-          </span>
-        )}
-      </div>
-      <div>
-        <h3 className="text-slate-500 text-sm font-medium">{title}</h3>
-        <p className="text-2xl font-bold text-slate-100">{value}</p>
-      </div>
-    </div>
-  );
+  }, [user?.id]);
 
   if (loading) {
     return (

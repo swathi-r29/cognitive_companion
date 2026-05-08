@@ -5,25 +5,26 @@ Cognitive Mood is an advanced AI companion designed to support mental health thr
 
 ## Features
 - **Emotion-Aware Chat**: Real-time conversation with granular emotion detection (28 categories).
-- **Health Dashboard**: Visualize mood trends, stress levels, and cognitive load over time.
+- **Health Dashboard**: Visualize mood trends, stress levels, and cognitive load over time using Recharts.
 - **Safety Guardrails**: Automated crisis detection and multi-layer response filtering to prevent harmful advice.
-- **Cognitive Analytics**: Tracking emotional drift and burnout risks.
+- **Asynchronous AI Pipeline**: Optimized inference engine that offloads heavy model processing to background threads to ensure high responsiveness.
 
 ## Tech Stack
-- **Frontend**: React 18, Tailwind CSS, Recharts, Framer Motion.
-- **Backend**: FastAPI, WebSockets, SQLAlchemy.
-- **AI/ML**: Transformers (BERT, RoBERTa), GPT-4/Claude (via API).
-- **Database**: PostgreSQL.
-- **Auth**: Firebase.
+- **Frontend**: React 19, Tailwind CSS, Recharts, Framer Motion, Lucide React.
+- **Backend**: FastAPI, WebSockets, Motor (Async MongoDB Driver).
+- **AI/ML**: Transformers (RoBERTa - GoEmotions), PyTorch.
+- **Database**: MongoDB (Atlas).
+- **Auth**: Firebase Authentication.
 
 ## Setup Instructions
 
 ### Backend
 1. Navigate to `backend/`
 2. Create a virtual environment: `python -m venv venv`
-3. Activate it: `venv\Scripts\activate`
+3. Activate it: `venv\Scripts\activate` (Windows) or `source venv/bin/activate` (Linux/Mac)
 4. Install dependencies: `pip install -r requirements.txt`
-5. Run the server: `uvicorn app.main:app --reload`
+5. Configure `.env`: Add `MONGODB_URL` and `OPENAI_API_KEY`.
+6. Run the server: `uvicorn app.main:app --reload`
 
 ### Frontend
 1. Navigate to `frontend/`
@@ -31,9 +32,10 @@ Cognitive Mood is an advanced AI companion designed to support mental health thr
 3. Run the dev server: `npm run dev`
 
 ## Innovation Points (IEEE/Research)
-- **Temporal Emotional Drift**: A novel approach to tracking psychological decline over time using vector similarity baselines.
-- **Pre-emptive Crisis Routing**: Bypassing generative LLMs for high-risk inputs to ensure safety.
-- **Multimodal Ready**: Architecture designed for future integration of voice and facial expression analysis.
+- **Hybrid NLP Engine**: A dual-layer system combining Deep Learning (RoBERTa) with rule-based heuristics for 100% uptime and high accuracy.
+- **Pre-emptive Crisis Routing**: Real-time sentiment scoring and keyword analysis for immediate crisis intervention.
+- **Non-Blocking Architecture**: Leveraging Python's `asyncio` and thread executors to run high-latency AI models without freezing the API.
 
 ---
 *Disclaimer: This tool is for support purposes only and does not provide medical diagnosis or treatment.*
+

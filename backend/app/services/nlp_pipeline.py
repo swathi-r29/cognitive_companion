@@ -1,5 +1,6 @@
 from transformers import pipeline
 import torch
+import asyncio
 import logging
 
 logger = logging.getLogger(__name__)
@@ -34,18 +35,19 @@ class NLPPipeline:
         except Exception as e:
             logger.error(f"Error loading models: {e}")
 
-    def analyze_text(self, text: str):
-        """Run full analysis pipeline on text"""
+    async def analyze_text(self, text: str):
+        """Run full analysis pipeline on text (Async)"""
         if not self.emotion_classifier:
-            self.load_models()
+            await asyncio.to_thread(self.load_models)
 
+        # Run blocking model inference in background threads
         # 1. Emotion detection (28 nuanced labels)
-        emotions_output = self.emotion_classifier(text)
+        emotions_output = await asyncio.to_thread(self.emotion_classifier, text)
         raw_emotion = emotions_output[0][0]['label']
         confidence = emotions_output[0][0]['score']
         
         # 2. Sentiment detection & Normalization
-        sentiment_output = self.sentiment_analyzer(text)
+        sentiment_output = await asyncio.to_thread(self.sentiment_analyzer, text)
         sentiment_label = sentiment_output[0]['label']
         sentiment_conf = sentiment_output[0]['score']
         
